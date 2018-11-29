@@ -34,6 +34,15 @@ d3.json(jsonurl, function(error, graph) {
           .on("drag", dragged)
           .on("end", dragended));
 
+  d3.selectAll("line")
+    .attr("stroke", "#aaa")
+    .attr("opacity", 0.8);
+
+  d3.selectAll("nodes")
+    .attr("pointer-events", "all")
+    .attr("stroke", "none")
+    .attr("stroke-width", "40px");
+
   node.append("title")
       .text(function(d) { return d.id; });
 
