@@ -1,5 +1,6 @@
-var width = 960,
-    height = 600;
+var width = 800,
+    height = 800,
+    radius = 5;
 
 var svg = d3.select("body")
   .append("svg")
@@ -8,8 +9,9 @@ var svg = d3.select("body")
 
 var simulation = d3.forceSimulation()
   .force("link", d3.forceLink().id(function(d) { return d.id; }))
-  .force("charge", d3.forceManyBody())
-  .force("center", d3.forceCenter(width/2, height/2));
+  .force("charge", d3.forceManyBody().strength(-90)) // repulsion strength
+  .force("center", d3.forceCenter(width/2, height/2))
+  .force("collision", d3.forceCollide().radius(radius)); // forbid nodes overwrapping
 
 var jsonurl =
 "https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json";
@@ -21,35 +23,42 @@ d3.json(jsonurl, function(error, graph) {
       .attr("class", "links")
     .selectAll("line")
     .data(graph.links)
-    .enter().append("line");
+    .enter().append("line")
+    .attr("stroke", "#aaa")
+    .attr("stroke-width", function(d) {
+      return d.value / 5;
+    });
 
   var node = svg.append("g")
       .attr("class", "nodes")
     .selectAll("circle")
     .data(graph.nodes)
     .enter().append("circle")
-      .attr("r", 10.0)
+      .attr("r", function(d) {
+        d.weight = link.filter(function(l) {
+          return l.source == d.id || l.target == d.id;
+        }).size();
+        return radius + (d.weight / 2);
+      })
       .attr("stroke", "gray")
       .attr("stroke-width", 2)
       .attr("fill", function(d) {
         return d3.schemeCategory10[d.group];
       })
-      .call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended));
+    .call(d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended));
 
-  d3.selectAll("line")
-    .attr("stroke", "#aaa");
-    //.attr("opacity", 0.8);  // 動作が重くなる！
-
-  d3.selectAll("nodes")
-    .attr("pointer-events", "all")
-    .attr("stroke", "none")
-    .attr("stroke-width", "40px");
-
-  node.append("title")
-      .text(function(d) { return d.id; });
+  var title = svg.append("g")
+    .selectAll("text")
+    .data(graph.nodes)
+    .enter().append("text")
+    .text(node => node.id)
+    .attr("font-size", 15)
+    .attr("dx", radius + 2)
+    .attr("dy", radius / 2)
+    .attr("pointer-events", "none");
 
   simulation
     .nodes(graph.nodes)
@@ -68,6 +77,10 @@ d3.json(jsonurl, function(error, graph) {
     node
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; });
+
+    title
+      .attr("x", function(d) { return d.x; })
+      .attr("y", function(d) { return d.y; });
   }
 });
 
