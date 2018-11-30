@@ -14,7 +14,7 @@ var simulation = d3.forceSimulation()
   .force("collision", d3.forceCollide().radius(radius)); // forbid nodes overwrapping
 
 var jsonurl =
-"https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json";
+"https://gist.githubusercontent.com/velvetops/7b984f20e28f6baba02bcb8fa48faf93/raw/c80b13f75ee5fa1e86bb17291f135727a1d669a2/lesmiserables.json";
 
 d3.json(jsonurl, function(error, graph) {
   if (error) throw error;
