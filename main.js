@@ -28,15 +28,20 @@ d3.json(jsonurl, function(error, graph) {
     .selectAll("circle")
     .data(graph.nodes)
     .enter().append("circle")
-      .attr("r", 5.0)
+      .attr("r", 10.0)
+      .attr("stroke", "gray")
+      .attr("stroke-width", 2)
+      .attr("fill", function(d) {
+        return d3.schemeCategory10[d.group];
+      })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
           .on("end", dragended));
 
   d3.selectAll("line")
-    .attr("stroke", "#aaa")
-    .attr("opacity", 0.8);
+    .attr("stroke", "#aaa");
+    //.attr("opacity", 0.8);  // 動作が重くなる！
 
   d3.selectAll("nodes")
     .attr("pointer-events", "all")
@@ -82,3 +87,4 @@ function dragended(d) {
   d.fx = null;
   d.fy = null;
 }
+
